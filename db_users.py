@@ -1,3 +1,7 @@
 import sqlite3
 
-"comment by abdelahdi: we connect the databases here "
+
+connection = sqlite3.connect(r"C:\Users\btats the kid\Desktop\code\library management\users.db")
+
+
+cursor = connection.cursor()
