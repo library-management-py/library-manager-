@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import admin_login
+import adminmain
 from tkinter import messagebox
 
 ctk.set_appearance_mode("dark")
@@ -21,18 +22,15 @@ class App(ctk.CTk):
 
         self.frames = {}
 
-        # Add all pages to the app
-        for F in (Login, admin_login.adminpage):
+        for F in (Login, admin_login.adminpage, adminmain.adminmainpage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
             frame.grid(row=0, column=0, sticky="nsew")
 
-        # Show the main page initially
         self.show_frame("Login")
 
     def show_frame(self, page_name):
-        """Bring the specified frame to the front."""
         frame = self.frames[page_name]
         frame.tkraise()
 
@@ -73,7 +71,6 @@ class Login(ctk.CTkFrame):
         exit(0)
 
 
-# Run the application
 if __name__ == "__main__":
     app = App()
     app.mainloop()

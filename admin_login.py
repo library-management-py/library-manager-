@@ -1,13 +1,12 @@
 import customtkinter as ctk
 from tkinter import messagebox
 import db_users
-import sqlite3
 
 
 class adminpage(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
-
+        self.controller = controller
         
         label = ctk.CTkLabel(self, text="Admin Page", font=("Arial", 20))
         
@@ -42,10 +41,6 @@ class adminpage(ctk.CTkFrame):
         rows_username = db_users.cursor.fetchall()
         db_users.cursor.execute("SELECT password FROM users")
         rows_passwords = db_users.cursor.fetchall()
-        print(rows_username)
-        print(rows_passwords)
-        
-     
         authenticate = True
 
         for element in rows_username:
@@ -58,9 +53,10 @@ class adminpage(ctk.CTkFrame):
                 break
 
         if authenticate == True:
-                print("successful")
+            self.controller.show_frame("adminmainpage")
+                
         else:
-                print("username or password don't exist in database")
+             print("username or password don't exist in database")
 
 
             
