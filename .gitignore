@@ -9,10 +9,6 @@ __pycache__/
 # Log files
 *.log
 
-# Operating system files
-.DS_Store
-Thumbs.db
-
 # Virtual environments
 venv/
 .env/
