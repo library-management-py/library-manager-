@@ -34,12 +34,17 @@ class adminpage(ctk.CTkFrame):
         back_button.pack(pady=20)
         enter_button.pack(pady=20)
 
+
+
+
+
+
     def on_enter(self):
         username_value = self.admin_username_field.get()
         password_value = self.admin_password_field.get()
-        db_users.cursor.execute("SELECT username FROM users")
+        db_users.cursor.execute("SELECT username FROM admins")
         rows_username = db_users.cursor.fetchall()
-        db_users.cursor.execute("SELECT password FROM users")
+        db_users.cursor.execute("SELECT password FROM admins")
         rows_passwords = db_users.cursor.fetchall()
         authenticate = True
 

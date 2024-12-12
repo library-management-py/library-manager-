@@ -1,7 +1,10 @@
 import customtkinter as ctk
 import admin_login
 import adminmain
+import signup
+import mainpage
 from tkinter import messagebox
+import db_users
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -22,7 +25,7 @@ class App(ctk.CTk):
 
         self.frames = {}
 
-        for F in (Login, admin_login.adminpage, adminmain.adminmainpage):
+        for F in (Login, admin_login.adminpage, adminmain.adminmainpage,mainpage.mainpage, signup.signup):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -38,6 +41,8 @@ class Login(ctk.CTkFrame):
     def __init__(self,parent,controller):
         super().__init__(parent)
 
+        self.controller = controller
+
         self.username_field = ctk.CTkEntry(self, width=200, font=("Arial", 10))
         self.password_field = ctk.CTkEntry(self, width=200, font=("Arial", 10), show = "*")
 
@@ -48,6 +53,7 @@ class Login(ctk.CTkFrame):
         self.enter_button = ctk.CTkButton(self, text="enter", command= self.on_enter)
         self.admin_page_log_in = ctk.CTkButton(self, text="admin page", command= lambda: controller.show_frame("adminpage"))
         self.close_button = ctk.CTkButton(self, text="close", command=self.on_close)
+        self.signup_button = ctk.CTkButton(self,text="sign up", command= lambda: controller.show_frame("signup"))
         
         self.label.pack(pady=20)
         self.username_label.pack(pady=20)
@@ -57,16 +63,13 @@ class Login(ctk.CTkFrame):
         self.enter_button.pack(pady=20)
         self.close_button.pack(pady=20)
         self.admin_page_log_in.pack(pady =20)
+        self.signup_button.pack(pady=20)
+
 
 
     def on_enter(self):
-        username_value = self.username_field.get()
-        password_value = self.password_field.get()
-        if (len(username_value) >= 8 or len(password_value) >= 8):
-            messagebox.showwarning("fLUDGE you")
-        else:
-            print(f"username {username_value}")
-            print(f"username {username_value}")
+         self.controller.show_frame("mainpage")
+
     def on_close(self):
         exit(0)
 
@@ -74,4 +77,3 @@ class Login(ctk.CTkFrame):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
