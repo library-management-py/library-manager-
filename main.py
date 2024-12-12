@@ -5,6 +5,7 @@ import signup
 import mainpage
 from tkinter import messagebox
 import db_users
+import requests
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -66,9 +67,24 @@ class Login(ctk.CTkFrame):
         self.signup_button.pack(pady=20)
 
 
+        #log in page image
 
     def on_enter(self):
-         self.controller.show_frame("mainpage")
+        username_value = self.username_field.get()
+        password_value = self.password_field.get()
+         
+
+        rows = db_users.cursor.execute("SELECT username, password FROM users").fetchall()
+        authenticate = False
+        for row in rows:
+            if row[0] == username_value and row[1] == password_value:
+                authenticate = True
+                break
+        if authenticate:
+            self.controller.show_frame("mainpage")
+        else:
+            messagebox.showwarning("failed")
+
 
     def on_close(self):
         exit(0)

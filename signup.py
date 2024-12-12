@@ -55,8 +55,9 @@ class signup(ctk.CTkFrame):
         db_users.cursor.execute(
         "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
         (username_value, email_value, password_value)
-    )
+       )
 
         db_users.connection.commit()
+        
         
             
