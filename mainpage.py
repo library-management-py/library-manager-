@@ -5,7 +5,7 @@ import requests
 from io import BytesIO
 from PIL import Image, ImageTk
 import asyncio
-
+import aiohttp
 
 
 class mainpage(ctk.CTkFrame):
@@ -20,6 +20,8 @@ class mainpage(ctk.CTkFrame):
         )
         back_button.pack(pady=20)
 
+
+
         canvas = ctk.CTkCanvas(self, highlightthickness=0)
         canvas.pack(side="left", fill="both", expand=True)
 
@@ -30,13 +32,13 @@ class mainpage(ctk.CTkFrame):
         canvas.configure(yscrollcommand=scrollbar.set)
 
         # Create a frame inside the canvas
-        image_frame = ctk.CTkFrame(canvas)
-        image_frame.bind(
+        self.image_frame = ctk.CTkFrame(canvas)
+        self.image_frame.bind(
             "<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
         )
-        canvas.create_window((0, 0), window=image_frame, anchor="nw")
+        canvas.create_window((0, 0), window=self.image_frame, anchor="nw")
 
-
+ 
         db_users.cursor.execute("SELECT img_url, title FROM books")
         book = db_users.cursor.fetchall()
 
@@ -69,13 +71,13 @@ class mainpage(ctk.CTkFrame):
 
         
             # Create a label to display the image
-            img_label = ctk.CTkLabel(image_frame, image=photo)
+            img_label = ctk.CTkLabel(self.image_frame, image=photo)
             img_label.image = photo  # Keep a reference to avoid garbage collection
             img_label.grid(row=row, column=column, padx=10, pady=10)  # Position the image in grid
 
             # Create a label for the title below the image
             title_label = ctk.CTkLabel(
-                image_frame,
+                self.image_frame,
                 text=title,
                 font=("Arial", 14),
                 text_color="white",
@@ -88,6 +90,9 @@ class mainpage(ctk.CTkFrame):
             if column == 5:  # Move to the next row after 3 images
                 column = 0
                 row += 2
+        
+
+
 
 
 
