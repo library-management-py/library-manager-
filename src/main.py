@@ -68,7 +68,6 @@ class Login(ctk.CTkFrame):
         self.signup_button.pack(pady=20)
 
 
-        #log in page image
 
     def on_enter(self):
         username_value = self.username_field.get()
