@@ -1,11 +1,12 @@
 import customtkinter as ctk
-import admin_login
-import adminmain
-import signup
-import mainpage
 from tkinter import messagebox
-import db_users
-import requests
+
+import admin_login as admin_login
+import adminmain as adminmain
+import signup as signup
+import mainpage as mainpage
+import db_users as db_users
+
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")

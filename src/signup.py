@@ -1,5 +1,5 @@
 import customtkinter as ctk
-import db_users
+import db_users as db_users
 
 
 class signup(ctk.CTkFrame):

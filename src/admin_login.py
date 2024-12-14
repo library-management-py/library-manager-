@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox
-import db_users
+import db_users as db_users
 
 
 class adminpage(ctk.CTkFrame):
