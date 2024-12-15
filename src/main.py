@@ -4,6 +4,7 @@ from tkinter import messagebox
 import admin_login as admin_login
 import adminmain as adminmain
 import signup as signup
+import book_page as bookpage
 import mainpage as mainpage
 import db_users as db_users
 
@@ -27,7 +28,7 @@ class App(ctk.CTk):
 
         self.frames = {}
 
-        for F in (Login, admin_login.adminpage, adminmain.adminmainpage,mainpage.mainpage, signup.signup):
+        for F in (Login, admin_login.adminpage, adminmain.adminmainpage,mainpage.mainpage, signup.signup,bookpage.bookpage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -53,7 +54,7 @@ class Login(ctk.CTkFrame):
         self.password_label = ctk.CTkLabel(self, text= "password: ", font=("Arial", 17))   
 
         self.enter_button = ctk.CTkButton(self, text="enter", command= self.on_enter)
-        self.admin_page_log_in = ctk.CTkButton(self, text="admin page", command= lambda: controller.show_frame("adminpage"))
+        self.admin_page_log_in = ctk.CTkButton(self, text="admin page",fg_color="transparent", command= lambda: controller.show_frame("adminpage"))
         self.close_button = ctk.CTkButton(self, text="close", command=self.on_close)
         self.signup_button = ctk.CTkButton(self,text="sign up", command= lambda: controller.show_frame("signup"))
         
