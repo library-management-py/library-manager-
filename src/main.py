@@ -20,6 +20,7 @@ class App(ctk.CTk):
         self.geometry("800x600")
         self.title("Multi-Page App")
 
+       
 
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -38,6 +39,7 @@ class App(ctk.CTk):
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
+        
         frame.tkraise()
 
 class Login(ctk.CTkFrame):
@@ -58,6 +60,7 @@ class Login(ctk.CTkFrame):
         self.close_button = ctk.CTkButton(self, text="close", command=self.on_close)
         self.signup_button = ctk.CTkButton(self,text="sign up", command= lambda: controller.show_frame("signup"))
         
+
         self.label.pack(pady=20)
         self.username_label.pack(pady=20)
         self.username_field.pack(pady=10)

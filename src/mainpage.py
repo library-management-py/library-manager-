@@ -16,22 +16,65 @@ class mainpage(ctk.CTkFrame):
         super().__init__(parent)
         self.controller = controller
 
+import customtkinter as ctk
+
+class mainpage(ctk.CTkFrame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        # Header Frame
         header_frame = ctk.CTkFrame(self)
-        header_frame.pack(fill="x", pady=10)
+        header_frame.pack(expand=True, padx=20, pady=20)  # Centered frame
 
-        label = ctk.CTkLabel(header_frame, text="Main Page", font=("Arial", 20))
-        label.pack()
+        # Page Title
+        self.title_label = ctk.CTkLabel(header_frame, text="Main Page", font=("Arial", 20))
+        self.title_label.grid(row=0, column=0, columnspan=2, pady=(10, 5))
 
-        search_label = ctk.CTkLabel(header_frame, text="Search:", font=("Arial", 14))
-        search_label.pack(pady=(10, 5))
-
-        searchbar = ctk.CTkEntry(header_frame, width=200)
-        searchbar.pack(pady=(0, 20))
-
-        back_button = ctk.CTkButton(
-            header_frame, text="Back to Login", command=lambda: controller.show_frame("Login")
+        # Search Type Segmented Button
+        self.segmented_var = ctk.StringVar(value="basic search")
+        self.segmented_button = ctk.CTkSegmentedButton(
+            header_frame, values=["basic search", "advanced search"],
+            command=self.segmented_buttons, variable=self.segmented_var
         )
-        back_button.pack(pady=(10, 20))
+        self.segmented_button.grid(row=1, column=0, columnspan=2, pady=(10, 20))
+
+        # Basic Search Label
+        self.basic_search_label = ctk.CTkLabel(header_frame, text="Search for books:")
+        self.basic_search_label.grid(row=2, column=0, columnspan=2, pady=(10, 10))
+        self.basic_search_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter search term")
+
+        # Advanced Search Fields (Hidden by Default)
+        self.author_label = ctk.CTkLabel(header_frame, text="Author:")
+        self.author_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter author's name")
+
+        self.title_label_adv = ctk.CTkLabel(header_frame, text="Title:")
+        self.title_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book title")
+
+        self.genre_label = ctk.CTkLabel(header_frame, text="Genre:")
+        self.genre_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book genre")
+
+        self.year_label = ctk.CTkLabel(header_frame, text="Year:")
+        self.year_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter year of publication")
+
+        self.isbn_label = ctk.CTkLabel(header_frame, text="ISBN:")
+        self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number")
+
+        # Search Button
+        self.search_button = ctk.CTkButton(header_frame, text="Search")
+        self.search_button.grid(row=8, column=0, columnspan=2, pady=(10, 10))
+
+        # Back Button
+        self.back_button = ctk.CTkButton(
+            header_frame, text="Back to Login",
+            command=lambda: controller.show_frame("Login")
+        )
+        self.back_button.grid(row=9, column=0, columnspan=2, pady=(5, 20))
+
+        # Show Basic Search by Default
+        self.segmented_buttons("basic search")
+
+        
 
         # Canvas and Scrollbar Section
         self.canvas = ctk.CTkCanvas(self, highlightthickness=0)
@@ -44,7 +87,7 @@ class mainpage(ctk.CTkFrame):
         self.canvas.bind_all("<MouseWheel>", self.on_mouse_scroll)
 
         # Frame inside Canvas for Grid Layout
-        self.image_frame = ctk.CTkFrame(self.canvas)  # Nested frame for grid layout
+        self.image_frame = ctk.CTkFrame(self.canvas)  
         self.canvas.create_window((0, 0), window=self.image_frame, anchor="nw")
 
         self.image_frame.bind(
@@ -54,19 +97,59 @@ class mainpage(ctk.CTkFrame):
         # Show Images in Grid
         self.show_image()
 
+
+    def segmented_buttons(self,value):
+        self.author_label.grid_forget()
+        self.author_entry.grid_forget()
+        self.title_label_adv.grid_forget()
+        self.title_entry.grid_forget()
+        self.genre_label.grid_forget()
+        self.genre_entry.grid_forget()
+        self.year_label.grid_forget()
+        self.year_entry.grid_forget()
+        self.isbn_label.grid_forget()
+        self.isbn_entry.grid_forget()
+
+        # Hide Basic Search Widgets
+        self.basic_search_label.grid_forget()
+        self.basic_search_entry.grid_forget()
+
+        if value == "basic search":
+            self.basic_search_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+            self.basic_search_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+        elif value == "advanced search":
+            # Remove basic search label
+            self.basic_search_label.grid_forget()
+
+            self.author_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+            self.author_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+
+            self.title_label_adv.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+            self.title_entry.grid(row=3, column=1, padx=10, pady=5, sticky="w")
+
+            self.genre_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
+            self.genre_entry.grid(row=4, column=1, padx=10, pady=5, sticky="w")
+
+            self.year_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
+            self.year_entry.grid(row=5, column=1, padx=10, pady=5, sticky="w")
+
+            self.isbn_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
+            self.isbn_entry.grid(row=6, column=1, padx=10, pady=5, sticky="w")
+
     def on_book_page_button(self):
+
         self.controller.show_frame("bookpage")
 
     def on_mouse_scroll(self, event):
-        if event.delta > 0:  # Scroll up
+        if event.delta > 0:  # for scroll up
             self.canvas.yview_scroll(-1, "units")
-        elif event.delta < 0:  # Scroll down
+        elif event.delta < 0:  # for scroll down
             self.canvas.yview_scroll(1, "units")   
+
     def button_maker(self,title):
-        test_button = ctk.CTkButton(self.image_frame,text=title,border_width=0,fg_color="transparent", command=self.on_book_page_button)
+        test_button = ctk.CTkButton(self.image_frame,text=title, border_width=0,fg_color="transparent", command=self.on_book_page_button)
         return test_button
  
-
     def show_image(self):
         # Directory containing cached images
         cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
@@ -97,11 +180,11 @@ class mainpage(ctk.CTkFrame):
 
                 # Update column and row for the next image
                 column += 1
-                if column == 5:  # Move to the next row after 5 images
+                if column == 3:  # Move to the next row after 5 images
                     column = 0
                     row += 2
 
-        # End timer and calculate elapsed time
+        # End timer
         end_time = time.time()
         elapsed_time = end_time - start_time
         print(f"Time taken to load images: {elapsed_time:.2f} seconds")
