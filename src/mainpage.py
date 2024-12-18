@@ -10,6 +10,7 @@ import requests
 import queue
 from io import StringIO 
 import os
+import random
 
 class mainpage(ctk.CTkFrame):
     def __init__(self,parent,controller):
@@ -64,6 +65,9 @@ class mainpage(ctk.CTkFrame):
         self.search_button = ctk.CTkButton(header_frame, text="Search")
         self.search_button.grid(row=8, column=0, columnspan=2, pady=(10, 10))
 
+        self.sort_button =ctk.CTkButton(header_frame, text="sort",command=self.sort)
+        self.sort_button.grid(row=6, column=1, padx=10, pady=5, sticky="w")
+
         # Back Button
         self.back_button = ctk.CTkButton(
             header_frame, text="Back to Login",
@@ -96,6 +100,8 @@ class mainpage(ctk.CTkFrame):
 
         # Show Images in Grid
         self.show_image()
+
+
 
 
     def segmented_buttons(self,value):
@@ -149,16 +155,53 @@ class mainpage(ctk.CTkFrame):
     def button_maker(self,title):
         test_button = ctk.CTkButton(self.image_frame,text=title, border_width=0,fg_color="transparent", command=self.on_book_page_button)
         return test_button
+
+    
+    def sort(self):
+        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+        row, column = 0, 0  # Start positions for the grid layout
+        file_test = os.listdir(cache_dir)
+        file = sorted(file_test)
+
+        # Iterate through all files in the cache directory
+        for file_name in file_test:
+            
+            file_path = os.path.join(cache_dir, file_name)
+
+            # Ensure the file is an image
+            if os.path.isfile(file_path) and file_name.endswith(('.jpg', '.png', '.jpeg')):
+                # Open and resize the image
+                img = Image.open(file_path).resize((250, 350))
+                photo = ctk.CTkImage(light_image=img, size=(250, 350))
+
+                # Display the image in the grid
+                img_label = ctk.CTkLabel(self.image_frame, image=photo)
+                img_label.image = photo  # Keep a reference to avoid garbage collection
+                img_label.grid(row=row, column=column, padx=10, pady=10)
+
+                # Extract title from the file name (replace underscores with spaces)
+                title = os.path.splitext(file_name)[0].replace("_", " ")
+                title_button = self.button_maker(title=title)
+                title_button.grid(row=row + 1, column=column, padx=10, pady=(0, 20))
+
+                # Update column and row for the next image
+                column += 1
+                if column == 3:  # Move to the next row after 5 images
+                    column = 0
+                    row += 2
+
  
     def show_image(self):
         # Directory containing cached images
         cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
         row, column = 0, 0  # Start positions for the grid layout
+        file_test = os.listdir(cache_dir)
+        file = random.shuffle(file_test)
 
         start_time = time.time()  # Start timer for performance tracking
 
         # Iterate through all files in the cache directory
-        for file_name in os.listdir(cache_dir):
+        for file_name in file_test:
             
             file_path = os.path.join(cache_dir, file_name)
 
