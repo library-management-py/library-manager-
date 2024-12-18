@@ -1,36 +1,55 @@
 import customtkinter as ctk
-import sqlite3
 import db_users as db_users
-import requests
-from io import BytesIO
 from PIL import Image, ImageTk
-import threading
-import time
-import requests
 import queue
-from io import StringIO 
 import os
 import random
+from tkinter import ttk
+
 
 class mainpage(ctk.CTkFrame):
     def __init__(self,parent,controller):
         super().__init__(parent)
         self.controller = controller
+        
+        # Parent frame to hold both left_frame and header_frame
+        parent_frame = ctk.CTkFrame(self)
+        parent_frame.pack(expand=True, fill="both")  # This uses pack without conflict
 
-import customtkinter as ctk
+        # Left frame with shorter height
+        self.left_frame = ctk.CTkFrame(parent_frame, width=200, height=300)
+        self.left_frame.pack(side="left", padx=10, pady=10, anchor="n")
+        self.left_frame.pack_propagate(False)  # Prevent the frame from resizing
 
-class mainpage(ctk.CTkFrame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
+        # Header frame with shorter height
+        header_frame = ctk.CTkFrame(parent_frame, height=300)
+        header_frame.pack(side="left", expand=True, fill="y", padx=20, pady=10)
+        header_frame.pack_propagate(False)  # Prevent resizing
 
-        # Header Frame
-        header_frame = ctk.CTkFrame(self)
-        header_frame.pack(expand=True, padx=20, pady=20)  # Centered frame
+        # Canvas and Scrollbar Section
+        self.canvas = ctk.CTkCanvas(self, highlightthickness=0)
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.canvas.configure(bg="#212121")
+        scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=self.canvas.yview)
+        scrollbar.pack(side="right", fill="y")
 
-        # Page Title
-        self.title_label = ctk.CTkLabel(header_frame, text="Main Page", font=("Arial", 20))
-        self.title_label.grid(row=0, column=0, columnspan=2, pady=(10, 5))
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.bind_all("<MouseWheel>", self.on_mouse_scroll)
+
+        # Frame inside Canvas for Grid Layout
+        self.image_frame = ctk.CTkFrame(self.canvas)  
+        self.image_frame.configure(fg_color="transparent")
+        self.canvas.create_window((0, 0), window=self.image_frame, anchor="nw")
+
+        self.image_frame.bind(
+            "<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        )
+
+        # Combolist
+        combo = ttk.Combobox(self.left_frame,values=["alphabetically","by date-oldest to newest","by date-newest to oldest"])
+        combo.set("sort by")
+        combo.pack(pady=20)
+        combo.bind("<<ComboboxSelected>>", self.combo_box)
 
         # Search Type Segmented Button
         self.segmented_var = ctk.StringVar(value="basic search")
@@ -40,12 +59,30 @@ class mainpage(ctk.CTkFrame):
         )
         self.segmented_button.grid(row=1, column=0, columnspan=2, pady=(10, 20))
 
-        # Basic Search Label
+        # Create all of the advanced search widgets
+        self.create_search_widgets(header_frame=header_frame)
+        
+        # Back Button
+        self.back_button = ctk.CTkButton(
+            header_frame, text="Back to Login",
+            command=lambda: controller.show_frame("Login")
+        )
+        self.back_button.grid(row=9, column=0, columnspan=2, pady=(5, 20))
+
+        self.images = []
+
+        # Show Images in Grid
+        self.show_image()
+        # Show Basic Search by Default
+        self.segmented_buttons("basic search")
+
+    def create_search_widgets(self, header_frame):
+        # Basic Search Label and Entry
         self.basic_search_label = ctk.CTkLabel(header_frame, text="Search for books:")
         self.basic_search_label.grid(row=2, column=0, columnspan=2, pady=(10, 10))
         self.basic_search_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter search term")
 
-        # Advanced Search Fields (Hidden by Default)
+        # Advanced Search Fields
         self.author_label = ctk.CTkLabel(header_frame, text="Author:")
         self.author_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter author's name")
 
@@ -61,45 +98,12 @@ class mainpage(ctk.CTkFrame):
         self.isbn_label = ctk.CTkLabel(header_frame, text="ISBN:")
         self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number")
 
-        # Search Button
-        self.search_button = ctk.CTkButton(header_frame, text="Search")
+        # Buttons
+        self.search_button = ctk.CTkButton(header_frame, text="Search",command=self.search_function)
         self.search_button.grid(row=8, column=0, columnspan=2, pady=(10, 10))
 
-        self.sort_button =ctk.CTkButton(header_frame, text="sort",command=self.sort)
-        self.sort_button.grid(row=6, column=1, padx=10, pady=5, sticky="w")
-
-        # Back Button
-        self.back_button = ctk.CTkButton(
-            header_frame, text="Back to Login",
-            command=lambda: controller.show_frame("Login")
-        )
-        self.back_button.grid(row=9, column=0, columnspan=2, pady=(5, 20))
-
-        # Show Basic Search by Default
-        self.segmented_buttons("basic search")
-
-        
-
-        # Canvas and Scrollbar Section
-        self.canvas = ctk.CTkCanvas(self, highlightthickness=0)
-        self.canvas.pack(side="left", fill="both", expand=True)
-
-        scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=self.canvas.yview)
-        scrollbar.pack(side="right", fill="y")
-
-        self.canvas.configure(yscrollcommand=scrollbar.set)
-        self.canvas.bind_all("<MouseWheel>", self.on_mouse_scroll)
-
-        # Frame inside Canvas for Grid Layout
-        self.image_frame = ctk.CTkFrame(self.canvas)  
-        self.canvas.create_window((0, 0), window=self.image_frame, anchor="nw")
-
-        self.image_frame.bind(
-            "<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        )
-
-        # Show Images in Grid
-        self.show_image()
+        self.sort_button = ctk.CTkButton(self.left_frame, text="Sort", command=self.sort)
+        self.sort_button.pack(padx=10, pady=5, anchor="w")
 
 
 
@@ -156,60 +160,37 @@ class mainpage(ctk.CTkFrame):
         test_button = ctk.CTkButton(self.image_frame,text=title, border_width=0,fg_color="transparent", command=self.on_book_page_button)
         return test_button
 
-    
-    def sort(self):
-        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
-        row, column = 0, 0  # Start positions for the grid layout
-        file_test = os.listdir(cache_dir)
-        file = sorted(file_test)
-
-        # Iterate through all files in the cache directory
-        for file_name in file_test:
-            
-            file_path = os.path.join(cache_dir, file_name)
-
-            # Ensure the file is an image
-            if os.path.isfile(file_path) and file_name.endswith(('.jpg', '.png', '.jpeg')):
-                # Open and resize the image
-                img = Image.open(file_path).resize((250, 350))
-                photo = ctk.CTkImage(light_image=img, size=(250, 350))
-
-                # Display the image in the grid
-                img_label = ctk.CTkLabel(self.image_frame, image=photo)
-                img_label.image = photo  # Keep a reference to avoid garbage collection
-                img_label.grid(row=row, column=column, padx=10, pady=10)
-
-                # Extract title from the file name (replace underscores with spaces)
-                title = os.path.splitext(file_name)[0].replace("_", " ")
-                title_button = self.button_maker(title=title)
-                title_button.grid(row=row + 1, column=column, padx=10, pady=(0, 20))
-
-                # Update column and row for the next image
-                column += 1
-                if column == 3:  # Move to the next row after 5 images
-                    column = 0
-                    row += 2
 
  
-    def show_image(self):
+    def sort(self):
+        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+
+        file_list = os.listdir(cache_dir)
+        file = sorted(file_list)
+        self.show_image(file_list=file)
+
+ 
+    def show_image(self,file_list = None):
         # Directory containing cached images
         cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
         row, column = 0, 0  # Start positions for the grid layout
-        file_test = os.listdir(cache_dir)
-        file = random.shuffle(file_test)
 
-        start_time = time.time()  # Start timer for performance tracking
-
-        # Iterate through all files in the cache directory
-        for file_name in file_test:
+        if file_list is None:
+            file_list = os.listdir(cache_dir)
+            random.shuffle(file_list)
+        # go through all files in the cache directory
+        for file_name in file_list:
             
             file_path = os.path.join(cache_dir, file_name)
+
 
             # Ensure the file is an image
             if os.path.isfile(file_path) and file_name.endswith(('.jpg', '.png', '.jpeg')):
                 # Open and resize the image
                 img = Image.open(file_path).resize((250, 350))
                 photo = ctk.CTkImage(light_image=img, size=(250, 350))
+
+                self.images.append(photo)
 
                 # Display the image in the grid
                 img_label = ctk.CTkLabel(self.image_frame, image=photo)
@@ -223,11 +204,96 @@ class mainpage(ctk.CTkFrame):
 
                 # Update column and row for the next image
                 column += 1
-                if column == 3:  # Move to the next row after 5 images
+                if column == 3:  # Move to the next row after 3 images
                     column = 0
                     row += 2
 
-        # End timer
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"Time taken to load images: {elapsed_time:.2f} seconds")
+    def sort_by_date(self,state):
+        db_users.cursor.execute("SELECT published_date, title FROM books")
+        dates_title = db_users.cursor.fetchall()
+
+        if state == "oldest to newest":
+          sorted_dates = sorted(dates_title, key=lambda x: x[0])  # Oldest to Newest
+
+            
+
+        elif state == "newest to oldest":
+            sorted_dates = sorted(dates_title, key=lambda x: x[0], reverse=True)
+        unique_dates = list(dict.fromkeys(sorted_dates))
+
+        file_list = []
+        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+
+        for _, title in unique_dates:  
+            # get filename from title
+            filename = f"{title.replace(' ', '_')}.jpg"
+            file_path = os.path.join(cache_dir, filename)
+
+            if os.path.isfile(file_path):
+                file_list.append(filename)
+
+
+        self.show_image(file_list=file_list)
+
+    def combo_box(self, event):
+        value = event.widget.get()  
+
+        if value == "alphabetically":
+            self.sort()
+
+        elif value == "by date-oldest to newest":
+            self.sort_by_date("oldest to newest")
+
+        elif value == "by date-newest to oldest":
+            self.sort_by_date("newest to oldest")
+
+    def search_function(self):
+       search_input = self.basic_search_entry.get().lower()
+       
+       # Clear the current grid
+       for widget in self.image_frame.winfo_children():
+           widget.destroy()
+       
+       # If the search input is empty, reload all images
+       if not search_input.strip():
+           self.show_image()
+           return
+       
+       # Filter and rebuild based on search input
+       cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+       file_list = os.listdir(cache_dir)
+       filtered_files = []
+       
+       # Match titles with the search input
+       for file_name in file_list:
+           title = os.path.splitext(file_name)[0].replace("_", " ").lower()
+           if search_input in title:
+               filtered_files.append(file_name)
+       
+       # Show the filtered images
+       self.show_image(file_list=filtered_files)
+
+       self.image_frame.update_idletasks()
+
+
+    
+    def rebuild_grid(self, widgets):
+      
+        row, column = 0, 0  # Start grid position
+        for image_widget, title_widget in widgets:
+            # Re-grid the image widget
+            image_widget.grid(row=row, column=column, padx=10, pady=10)
+            # Re-grid the title widget
+            title_widget.grid(row=row + 1, column=column, padx=10, pady=(0, 20))
+            
+            # Update column and row for next widgets
+            column += 1
+            if column == 3:  # Move to the next row after 3 images
+                column = 0
+                row += 2
+           
+           
+    
+            
+           
+    
