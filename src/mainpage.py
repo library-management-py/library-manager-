@@ -11,7 +11,7 @@ class mainpage(ctk.CTkFrame):
     def __init__(self,parent,controller):
         super().__init__(parent)
         self.controller = controller
-        
+
         # Parent frame to hold both left_frame and header_frame
         parent_frame = ctk.CTkFrame(self)
         parent_frame.pack(expand=True, fill="both")  # This uses pack without conflict
@@ -45,11 +45,14 @@ class mainpage(ctk.CTkFrame):
             "<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         )
 
-        # Combolist
-        combo = ttk.Combobox(self.left_frame,values=["alphabetically","by date-oldest to newest","by date-newest to oldest"])
-        combo.set("sort by")
-        combo.pack(pady=20)
-        combo.bind("<<ComboboxSelected>>", self.combo_box)
+        self.option_menu = ctk.CTkOptionMenu(
+            self.left_frame,
+            values=["Alphabetically", "By Date - Oldest to Newest", "By Date - Newest to Oldest"],
+            command=self.option_selected,
+            font=("Helvetica", 12)  # Modern font
+        )
+        self.option_menu.set("Sort By")
+        self.option_menu.pack(pady=20)
 
         # Search Type Segmented Button
         self.segmented_var = ctk.StringVar(value="basic search")
@@ -99,13 +102,18 @@ class mainpage(ctk.CTkFrame):
         self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number")
 
         # Buttons
-        self.search_button = ctk.CTkButton(header_frame, text="Search",command=self.search_function)
+        self.search_button = ctk.CTkButton(header_frame, text="Search", command=self.search_function)
+        self.basic_search_entry.bind("<Return>", lambda event: self.search_function(event))
         self.search_button.grid(row=8, column=0, columnspan=2, pady=(10, 10))
 
+        self.profile_button = ctk.CTkButton(self.left_frame,text="profile")
+        self.profile_button.pack(padx=10, pady=5, anchor="w")
         self.sort_button = ctk.CTkButton(self.left_frame, text="Sort", command=self.sort)
         self.sort_button.pack(padx=10, pady=5, anchor="w")
 
 
+    def on_porfile(self):
+        self.controller.show_frame("profilepage")
 
 
     def segmented_buttons(self,value):
@@ -235,19 +243,15 @@ class mainpage(ctk.CTkFrame):
 
         self.show_image(file_list=file_list)
 
-    def combo_box(self, event):
-        value = event.widget.get()  
-
-        if value == "alphabetically":
+    def option_selected(self, value):
+        if value == "Alphabetically":
             self.sort()
-
-        elif value == "by date-oldest to newest":
+        elif value == "By Date - Oldest to Newest":
             self.sort_by_date("oldest to newest")
-
-        elif value == "by date-newest to oldest":
+        elif value == "By Date - Newest to Oldest":
             self.sort_by_date("newest to oldest")
 
-    def search_function(self):
+    def search_function(self,event=None):
        search_input = self.basic_search_entry.get().lower()
        
        # Clear the current grid
@@ -273,7 +277,8 @@ class mainpage(ctk.CTkFrame):
        # Show the filtered images
        self.show_image(file_list=filtered_files)
 
-       self.image_frame.update_idletasks()
+       self.canvas.update_idletasks()
+       self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
 
     

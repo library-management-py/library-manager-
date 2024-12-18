@@ -7,6 +7,7 @@ import signup as signup
 import book_page as bookpage
 import mainpage as mainpage
 import db_users as db_users
+import profile_page
 
 
 ctk.set_appearance_mode("dark")
@@ -29,7 +30,7 @@ class App(ctk.CTk):
 
         self.frames = {}
 
-        for F in (Login, admin_login.adminpage, adminmain.adminmainpage,mainpage.mainpage, signup.signup,bookpage.bookpage):
+        for F in (Login, admin_login.adminpage, adminmain.adminmainpage,mainpage.mainpage, signup.signup,bookpage.bookpage,profile_page.profilepage):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
