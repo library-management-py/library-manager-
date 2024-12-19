@@ -44,6 +44,7 @@ class mainpage(ctk.CTkFrame):
         self.image_frame.bind(
             "<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
         )
+        # option menu
 
         self.option_menu = ctk.CTkOptionMenu(
             self.left_frame,
@@ -71,9 +72,6 @@ class mainpage(ctk.CTkFrame):
             command=lambda: controller.show_frame("Login")
         )
         self.back_button.grid(row=9, column=0, columnspan=2, pady=(5, 20))
-
-        self.images = []
-
         # Show Images in Grid
         self.show_image()
         # Show Basic Search by Default
@@ -84,6 +82,7 @@ class mainpage(ctk.CTkFrame):
         self.basic_search_label = ctk.CTkLabel(header_frame, text="Search for books:")
         self.basic_search_label.grid(row=2, column=0, columnspan=2, pady=(10, 10))
         self.basic_search_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter search term")
+        self.basic_search_entry.bind("<Return>", lambda event: self.search_function())
 
         # Advanced Search Fields
         self.author_label = ctk.CTkLabel(header_frame, text="Author:")
@@ -102,9 +101,13 @@ class mainpage(ctk.CTkFrame):
         self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number")
 
         # Buttons
-        self.search_button = ctk.CTkButton(header_frame, text="Search", command=self.search_function)
-        self.basic_search_entry.bind("<Return>", lambda event: self.search_function(event))
-        self.search_button.grid(row=8, column=0, columnspan=2, pady=(10, 10))
+        # Buttons
+        self.basic_search_button = ctk.CTkButton(header_frame, text="Basic Search", command=self.search_function)
+   
+        self.advanced_search_button = ctk.CTkButton(header_frame, text="Advanced Search",command=self.advanced_search_function)
+
+     
+        
 
         self.profile_button = ctk.CTkButton(self.left_frame,text="profile")
         self.profile_button.pack(padx=10, pady=5, anchor="w")
@@ -116,7 +119,8 @@ class mainpage(ctk.CTkFrame):
         self.controller.show_frame("profilepage")
 
 
-    def segmented_buttons(self,value):
+    def segmented_buttons(self, value):
+        # Hide all widgets
         self.author_label.grid_forget()
         self.author_entry.grid_forget()
         self.title_label_adv.grid_forget()
@@ -128,17 +132,18 @@ class mainpage(ctk.CTkFrame):
         self.isbn_label.grid_forget()
         self.isbn_entry.grid_forget()
 
-        # Hide Basic Search Widgets
         self.basic_search_label.grid_forget()
         self.basic_search_entry.grid_forget()
+        self.basic_search_button.grid_forget()
+        self.advanced_search_button.grid_forget()
 
         if value == "basic search":
+            # Show Basic Search Widgets
             self.basic_search_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
             self.basic_search_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+            self.basic_search_button.grid(row=3, column=0, columnspan=2, pady=(10, 10))
         elif value == "advanced search":
-            # Remove basic search label
-            self.basic_search_label.grid_forget()
-
+            # Show Advanced Search Widgets
             self.author_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
             self.author_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
 
@@ -153,6 +158,7 @@ class mainpage(ctk.CTkFrame):
 
             self.isbn_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
             self.isbn_entry.grid(row=6, column=1, padx=10, pady=5, sticky="w")
+            self.advanced_search_button.grid(row=7, column=0, columnspan=2, pady=(10, 10))
 
     def on_book_page_button(self):
 
@@ -198,7 +204,7 @@ class mainpage(ctk.CTkFrame):
                 img = Image.open(file_path).resize((250, 350))
                 photo = ctk.CTkImage(light_image=img, size=(250, 350))
 
-                self.images.append(photo)
+            
 
                 # Display the image in the grid
                 img_label = ctk.CTkLabel(self.image_frame, image=photo)
@@ -279,6 +285,63 @@ class mainpage(ctk.CTkFrame):
 
        self.canvas.update_idletasks()
        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+    def advanced_search_function(self):
+        title_value = self.title_entry.get().lower()
+        author_value = self.author_entry.get().lower()
+        date_value = self.year_entry.get()
+        isbn_value= self.isbn_entry.get()
+
+        title_list = []
+        author_list = []
+        date_list = []
+        isbn_list = []
+
+        db_users.cursor.execute("SELECT title, author, published_date, isbn FROM books ")
+        rows = db_users.cursor.fetchall()
+
+        for row in rows:
+            title_list.append(row[0].lower())
+            author_list.append(row[1].lower())
+            date_list.append(str(row[2]))
+            isbn_list.append(row[3])
+        #clear the grid
+        for widget in self.image_frame.winfo_children():
+           widget.destroy()
+    
+        #reload if empty
+
+        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+        file_list = os.listdir(cache_dir)
+        filtered_files = []
+        for file_name in file_list:
+            title = os.path.splitext(file_name)[0].replace("_", " ").lower()
+
+            # Fetch corresponding author, isbn, and year from the database
+            db_users.cursor.execute(
+                "SELECT author, isbn, published_date FROM books WHERE LOWER(title) LIKE ?", (f"%{title}%",)
+            )
+            result = db_users.cursor.fetchone()
+
+            # Extract author, isbn, and year if available
+            if result:
+                author, isbn, year = result
+            else:
+                author, isbn, year = None, None, None
+
+            # Match based on partial or exact year
+            if (title_value and title_value in title) or \
+               (author_value and author and author_value in author.lower()) or (date_value and year and date_value in str(year)) or  (isbn_value and isbn and isbn_value == isbn): 
+               
+              
+                if file_name not in filtered_files:  # Avoid duplicates
+                    filtered_files.append(file_name)
+
+
+        self.show_image(file_list=filtered_files)
+        self.canvas.update_idletasks()
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
 
 
     
