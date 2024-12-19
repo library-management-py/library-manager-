@@ -106,13 +106,9 @@ class mainpage(ctk.CTkFrame):
    
         self.advanced_search_button = ctk.CTkButton(header_frame, text="Advanced Search",command=self.advanced_search_function)
 
-     
-        
-
-        self.profile_button = ctk.CTkButton(self.left_frame,text="profile")
+        self.profile_button = ctk.CTkButton(self.left_frame,text="profile",command=self.on_porfile)
         self.profile_button.pack(padx=10, pady=5, anchor="w")
-        self.sort_button = ctk.CTkButton(self.left_frame, text="Sort", command=self.sort)
-        self.sort_button.pack(padx=10, pady=5, anchor="w")
+
 
 
     def on_porfile(self):
@@ -161,7 +157,7 @@ class mainpage(ctk.CTkFrame):
             self.advanced_search_button.grid(row=7, column=0, columnspan=2, pady=(10, 10))
 
     def on_book_page_button(self):
-
+        
         self.controller.show_frame("bookpage")
 
     def on_mouse_scroll(self, event):
