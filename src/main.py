@@ -19,9 +19,9 @@ class App(ctk.CTk):
 
 
         self.geometry("800x600")
-        self.title("Multi-Page App")
+        self.title("Library management system")
 
-       
+        self.title_transfer = []
 
         container = ctk.CTkFrame(self)
         container.pack(side="top", fill="both", expand=True)
@@ -40,6 +40,9 @@ class App(ctk.CTk):
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
+
+        if hasattr(frame, "on_show"):
+            frame.on_show()
         
         frame.tkraise()
 

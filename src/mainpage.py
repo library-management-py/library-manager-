@@ -13,11 +13,11 @@ class mainpage(ctk.CTkFrame):
         self.controller = controller
 
         # Parent frame to hold both left_frame and header_frame
-        parent_frame = ctk.CTkFrame(self)
+        parent_frame = ctk.CTkFrame(self,fg_color="#F5F5F5")
         parent_frame.pack(expand=True, fill="both")  # This uses pack without conflict
 
         # Left frame with shorter height
-        self.left_frame = ctk.CTkFrame(parent_frame, width=200, height=300)
+        self.left_frame = ctk.CTkFrame(parent_frame, width=200, height=300, fg_color="lavender")
         self.left_frame.pack(side="left", padx=10, pady=10, anchor="n")
         self.left_frame.pack_propagate(False)  # Prevent the frame from resizing
 
@@ -156,8 +156,9 @@ class mainpage(ctk.CTkFrame):
             self.isbn_entry.grid(row=6, column=1, padx=10, pady=5, sticky="w")
             self.advanced_search_button.grid(row=7, column=0, columnspan=2, pady=(10, 10))
 
-    def on_book_page_button(self):
-        
+    def on_book_page_button(self,title):
+        self.controller.title_transfer.append(title)
+
         self.controller.show_frame("bookpage")
 
     def on_mouse_scroll(self, event):
@@ -165,12 +166,6 @@ class mainpage(ctk.CTkFrame):
             self.canvas.yview_scroll(-1, "units")
         elif event.delta < 0:  # for scroll down
             self.canvas.yview_scroll(1, "units")   
-
-    def button_maker(self,title):
-        test_button = ctk.CTkButton(self.image_frame,text=title, border_width=0,fg_color="transparent", command=self.on_book_page_button)
-        return test_button
-
-
  
     def sort(self):
         cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
@@ -209,7 +204,12 @@ class mainpage(ctk.CTkFrame):
 
                 # Extract title from the file name (replace underscores with spaces)
                 title = os.path.splitext(file_name)[0].replace("_", " ")
-                title_button = self.button_maker(title=title)
+                
+                title_button = ctk.CTkButton(
+                self.image_frame,
+                text=title,
+                command=lambda t=title: self.on_book_page_button(t)  # Pass the title
+                )
                 title_button.grid(row=row + 1, column=column, padx=10, pady=(0, 20))
 
                 # Update column and row for the next image
@@ -338,9 +338,6 @@ class mainpage(ctk.CTkFrame):
         self.canvas.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-
-
-    
     def rebuild_grid(self, widgets):
       
         row, column = 0, 0  # Start grid position
