@@ -3,8 +3,7 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Database files
-*.db
+
 
 # Log files
 *.log
