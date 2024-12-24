@@ -8,106 +8,157 @@ from tkinter import ttk
 
 
 class mainpage(ctk.CTkFrame):
-    def __init__(self,parent,controller):
+    def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+        # Main layout
+        parent_frame = ctk.CTkFrame(self, fg_color="#FCF1D8") 
+        parent_frame.grid(row=0, column=0, sticky="nsew")
+        self.separator_line = ctk.CTkFrame(parent_frame, height=2, fg_color="black")
+        self.separator_line.grid(row=1, column=1, sticky="ew", padx=0, pady=0)
 
-        # Parent frame to hold both left_frame and header_frame
-        parent_frame = ctk.CTkFrame(self,fg_color="#F5F5F5")
-        parent_frame.pack(expand=True, fill="both")  # This uses pack without conflict
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        parent_frame.grid_rowconfigure(1, weight=1)
+        parent_frame.grid_columnconfigure(1, weight=1)
 
-        # Left frame with shorter height
-        self.left_frame = ctk.CTkFrame(parent_frame, width=200, height=300, fg_color="lavender")
-        self.left_frame.pack(side="left", padx=10, pady=10, anchor="n")
-        self.left_frame.pack_propagate(False)  # Prevent the frame from resizing
+        # Header frame (will be on the left side)
+        self.header_frame = ctk.CTkFrame(parent_frame, width=250, fg_color="#FCF1D8") 
+        self.header_frame.grid(row=0, column=0, rowspan=2, sticky="ns", padx=10, pady=10)
+        self.header_frame.grid_propagate(False)  # Keep width fixed
 
-        # Header frame with shorter height
-        header_frame = ctk.CTkFrame(parent_frame, height=300)
-        header_frame.pack(side="left", expand=True, fill="y", padx=20, pady=10)
-        header_frame.pack_propagate(False)  # Prevent resizing
+        # Left frame (now will be at the top of right side)
+        self.left_frame = ctk.CTkFrame(parent_frame, height=50, fg_color="#FCF1D8")
+        self.left_frame.grid(row=0, column=1, sticky="ew", padx=10, pady=10)
+        self.left_frame.grid_propagate(False)
 
-        # Canvas and Scrollbar Section
-        self.canvas = ctk.CTkCanvas(self, highlightthickness=0)
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.configure(bg="#212121")
-        scrollbar = ctk.CTkScrollbar(self, orientation="vertical", command=self.canvas.yview)
-        scrollbar.pack(side="right", fill="y")
+        
 
-        self.canvas.configure(yscrollcommand=scrollbar.set)
-        self.canvas.bind_all("<MouseWheel>", self.on_mouse_scroll)
-
-        # Frame inside Canvas for Grid Layout
-        self.image_frame = ctk.CTkFrame(self.canvas)  
-        self.image_frame.configure(fg_color="transparent")
-        self.canvas.create_window((0, 0), window=self.image_frame, anchor="nw")
-
-        self.image_frame.bind(
-            "<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+        # Segmented button 
+        self.segmented_var = ctk.StringVar(value="basic search")
+        self.segmented_button = ctk.CTkSegmentedButton(
+            self.header_frame,
+            values=["basic search", "advanced search"],
+            command=self.segmented_buttons,
+            variable=self.segmented_var,
+            fg_color="white", 
+            selected_color="white",
+            unselected_color="lightgray",
+            text_color="black",
+            corner_radius=10  # Rounded corners
         )
-        # option menu
+        self.segmented_button.grid(row=0, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
+        # Option menu
         self.option_menu = ctk.CTkOptionMenu(
             self.left_frame,
             values=["Alphabetically", "By Date - Oldest to Newest", "By Date - Newest to Oldest"],
-            command=self.option_selected,
-            font=("Helvetica", 12)  # Modern font
+            command=self.option_selected,  
+            fg_color="white",
+            dropdown_fg_color="#FCF1D8",  # Dropdown background color
+            button_color="white",         # Button background color
+            button_hover_color="white", # Hover effect for the button
+            text_color="black",
+            dropdown_text_color="black",
+            dropdown_hover_color="#E8E8E8"      # Text color
         )
+        self.option_menu.grid(row=0, column=1, padx=10, pady=10, sticky="e") 
         self.option_menu.set("Sort By")
-        self.option_menu.pack(pady=20)
 
-        # Search Type Segmented Button
-        self.segmented_var = ctk.StringVar(value="basic search")
-        self.segmented_button = ctk.CTkSegmentedButton(
-            header_frame, values=["basic search", "advanced search"],
-            command=self.segmented_buttons, variable=self.segmented_var
-        )
-        self.segmented_button.grid(row=1, column=0, columnspan=2, pady=(10, 20))
+        # Create search widgets in header_frame (left side)
+        self.create_search_widgets(header_frame=self.header_frame)
 
-        # Create all of the advanced search widgets
-        self.create_search_widgets(header_frame=header_frame)
-        
-        # Back Button
-        self.back_button = ctk.CTkButton(
-            header_frame, text="Back to Login",
-            command=lambda: controller.show_frame("Login")
-        )
-        self.back_button.grid(row=9, column=0, columnspan=2, pady=(5, 20))
+        # Canvas and image frame (right side, below left_frame)
+        self.canvas = ctk.CTkCanvas(parent_frame, highlightthickness=0, bg="#FCF1D8")
+        self.canvas.grid(row=1, column=1, sticky="nsew")
+
+        # Frame inside Canvas for Grid Layout
+        self.image_frame = ctk.CTkFrame(self.canvas)
+        self.image_frame.configure(fg_color="transparent")
+        self.canvas.create_window((0, 0), window=self.image_frame, anchor="nw")
+
+        # Scrollbar
+        scrollbar = ctk.CTkScrollbar(parent_frame, orientation="vertical", command=self.canvas.yview)
+        scrollbar.grid(row=1, column=2, sticky="ns")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+        self.canvas.bind_all("<MouseWheel>", self.on_mouse_scroll)
+
         # Show Images in Grid
         self.show_image()
         # Show Basic Search by Default
         self.segmented_buttons("basic search")
 
+        # Back Button (at bottom of header_frame)
+        self.back_button = ctk.CTkButton(
+            self.header_frame, text="Back to Login",
+            command=lambda: controller.show_frame("Login")
+            ,fg_color="black",  # Transparent inside
+            text_color="white",      # Black text
+            border_width=2,          # Black border
+            border_color="black",
+            hover_color="#E8E8E8"
+        )
+        self.back_button.grid(row=10, column=0, columnspan=2, pady=(5, 20))
+
+
     def create_search_widgets(self, header_frame):
         # Basic Search Label and Entry
-        self.basic_search_label = ctk.CTkLabel(header_frame, text="Search for books:")
-        self.basic_search_label.grid(row=2, column=0, columnspan=2, pady=(10, 10))
-        self.basic_search_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter search term")
+        self.basic_search_label = ctk.CTkLabel(header_frame, text="Search for books:", text_color="black",font=("Arial",18))
+        self.basic_search_label.grid(row=1, column=0, columnspan=2, pady=(10, 10))
+        self.basic_search_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter search term",fg_color="transparent",text_color="black")
         self.basic_search_entry.bind("<Return>", lambda event: self.search_function())
 
         # Advanced Search Fields
-        self.author_label = ctk.CTkLabel(header_frame, text="Author:")
-        self.author_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter author's name")
+        self.author_label = ctk.CTkLabel(header_frame, text="Author:", text_color="black")
+        self.author_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter author's name",fg_color="transparent")
 
-        self.title_label_adv = ctk.CTkLabel(header_frame, text="Title:")
-        self.title_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book title")
+        self.title_label_adv = ctk.CTkLabel(header_frame, text="Title:", text_color="black")
+        self.title_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book title",fg_color="transparent")
 
-        self.genre_label = ctk.CTkLabel(header_frame, text="Genre:")
-        self.genre_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book genre")
+        self.genre_label = ctk.CTkLabel(header_frame, text="Genre:", text_color="black")
+        self.genre_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book genre",fg_color="transparent")
 
-        self.year_label = ctk.CTkLabel(header_frame, text="Year:")
-        self.year_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter year of publication")
+        self.year_label = ctk.CTkLabel(header_frame, text="Year:", text_color="black")
+        self.year_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter year of publication",fg_color="transparent")
 
-        self.isbn_label = ctk.CTkLabel(header_frame, text="ISBN:")
-        self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number")
+        self.isbn_label = ctk.CTkLabel(header_frame, text="ISBN:", text_color="black")
+        self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number",fg_color="transparent")
 
-        # Buttons
-        # Buttons
-        self.basic_search_button = ctk.CTkButton(header_frame, text="Basic Search", command=self.search_function)
-   
-        self.advanced_search_button = ctk.CTkButton(header_frame, text="Advanced Search",command=self.advanced_search_function)
+        # Buttons with transparent inside and black borders
+        self.basic_search_button = ctk.CTkButton(
+            header_frame,
+            text="Search",
+            command=self.search_function,
+            fg_color="transparent",  # Transparent inside
+            text_color="black",      # Black text
+            border_width=2,          # Black border
+            border_color="black"
+            ,    hover_color="#E8E8E8"
+        )
 
-        self.profile_button = ctk.CTkButton(self.left_frame,text="profile",command=self.on_porfile)
-        self.profile_button.pack(padx=10, pady=5, anchor="w")
+        self.advanced_search_button = ctk.CTkButton(
+            header_frame,
+            text="Advanced Search",
+            command=self.advanced_search_function,
+            fg_color="transparent",  # Transparent inside
+            text_color="black",      # Black text
+            border_width=2,          # Black border
+            border_color="black",
+                hover_color="#E8E8E8"
+        )
+
+        self.profile_button = ctk.CTkButton(
+            header_frame,
+            text="profile",
+            command=self.on_porfile,
+            fg_color="black",  # Transparent inside
+            text_color="white",      # Black text
+            border_width=2,          # Black border
+            border_color="black",
+                hover_color="#E8E8E8"
+        )
+        self.profile_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+
 
 
 
@@ -135,27 +186,28 @@ class mainpage(ctk.CTkFrame):
 
         if value == "basic search":
             # Show Basic Search Widgets
-            self.basic_search_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
-            self.basic_search_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
-            self.basic_search_button.grid(row=3, column=0, columnspan=2, pady=(10, 10))
+            self.basic_search_label.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+            self.basic_search_entry.grid(row=2, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+            self.basic_search_button.grid(row=3, column=0, columnspan=2, padx=10, pady=(10, 10), sticky="ew")
+
         elif value == "advanced search":
             # Show Advanced Search Widgets
-            self.author_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
-            self.author_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
+            self.author_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
+            self.author_entry.grid(row=1, column=1, padx=10, pady=5, sticky="w")
 
-            self.title_label_adv.grid(row=3, column=0, padx=10, pady=5, sticky="e")
-            self.title_entry.grid(row=3, column=1, padx=10, pady=5, sticky="w")
+            self.title_label_adv.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+            self.title_entry.grid(row=2, column=1, padx=10, pady=5, sticky="w")
 
-            self.genre_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
-            self.genre_entry.grid(row=4, column=1, padx=10, pady=5, sticky="w")
+            self.genre_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+            self.genre_entry.grid(row=3, column=1, padx=10, pady=5, sticky="w")
 
-            self.year_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
-            self.year_entry.grid(row=5, column=1, padx=10, pady=5, sticky="w")
+            self.year_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
+            self.year_entry.grid(row=4, column=1, padx=10, pady=5, sticky="w")
 
-            self.isbn_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
-            self.isbn_entry.grid(row=6, column=1, padx=10, pady=5, sticky="w")
-            self.advanced_search_button.grid(row=7, column=0, columnspan=2, pady=(10, 10))
+            self.isbn_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
+            self.isbn_entry.grid(row=5, column=1, padx=10, pady=5, sticky="w")
 
+            self.advanced_search_button.grid(row=6, column=0, columnspan=2, padx=10, pady=(10, 10), sticky="ew")
     def on_book_page_button(self,title):
         self.controller.title_transfer.append(title)
 
@@ -197,8 +249,8 @@ class mainpage(ctk.CTkFrame):
 
             
 
-                # Display the image in the grid
-                img_label = ctk.CTkLabel(self.image_frame, image=photo)
+                # this is where the image is displayed
+                img_label = ctk.CTkLabel(self.image_frame, image=photo,text="")
                 img_label.image = photo  # Keep a reference to avoid garbage collection
                 img_label.grid(row=row, column=column, padx=10, pady=10)
 
@@ -208,15 +260,23 @@ class mainpage(ctk.CTkFrame):
                 title_button = ctk.CTkButton(
                 self.image_frame,
                 text=title,
-                command=lambda t=title: self.on_book_page_button(t)  # Pass the title
+                command=lambda t=title: self.on_book_page_button(t)
+                ,fg_color="transparent",  # Transparent inside
+                text_color="black",      # Black text
+                border_width=2,          # Black border
+                border_color="black",
+                hover_color="#E8E8E8",
+                font=("Arial", 13),   # Pass the title
                 )
                 title_button.grid(row=row + 1, column=column, padx=10, pady=(0, 20))
 
                 # Update column and row for the next image
                 column += 1
-                if column == 3:  # Move to the next row after 3 images
+                if column == 4:  # Move to the next row after 3 images
                     column = 0
                     row += 2
+        self.image_frame.update_idletasks()  # Ensure all geometry updates are processed
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def sort_by_date(self,state):
         db_users.cursor.execute("SELECT published_date, title FROM books")

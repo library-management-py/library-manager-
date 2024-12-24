@@ -18,7 +18,7 @@ class App(ctk.CTk):
         super().__init__()
 
 
-        self.geometry("800x600")
+        self.geometry("1980x1080")
         self.title("Library management system")
 
         self.title_transfer = []
