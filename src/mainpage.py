@@ -5,12 +5,13 @@ import queue
 import os
 import random
 from tkinter import ttk
-
+import sys
 
 class mainpage(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller,cache_dir=None):
         super().__init__(parent)
         self.controller = controller
+        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(os.path.dirname(__file__)), "cached_images")
         # Main layout
         parent_frame = ctk.CTkFrame(self, fg_color="#FCF1D8") 
         parent_frame.grid(row=0, column=0, sticky="nsew")
@@ -229,16 +230,15 @@ class mainpage(ctk.CTkFrame):
  
     def show_image(self,file_list = None):
         # Directory containing cached images
-        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
         row, column = 0, 0  # Start positions for the grid layout
 
         if file_list is None:
-            file_list = os.listdir(cache_dir)
+            file_list = os.listdir(self.cache_dir)
             random.shuffle(file_list)
         # go through all files in the cache directory
         for file_name in file_list:
             
-            file_path = os.path.join(cache_dir, file_name)
+            file_path = os.path.join(self.cache_dir, file_name)
 
 
             # Ensure the file is an image
@@ -292,12 +292,11 @@ class mainpage(ctk.CTkFrame):
         unique_dates = list(dict.fromkeys(sorted_dates))
 
         file_list = []
-        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
-
+       
         for _, title in unique_dates:  
             # get filename from title
             filename = f"{title.replace(' ', '_')}.jpg"
-            file_path = os.path.join(cache_dir, filename)
+            file_path = os.path.join(self.cache_dir, filename)
 
             if os.path.isfile(file_path):
                 file_list.append(filename)
@@ -326,8 +325,8 @@ class mainpage(ctk.CTkFrame):
            return
        
        # Filter and rebuild based on search input
-       cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
-       file_list = os.listdir(cache_dir)
+       
+       file_list = os.listdir(self.cache_dir)
        filtered_files = []
        
        # Match titles with the search input
@@ -367,8 +366,7 @@ class mainpage(ctk.CTkFrame):
     
         #reload if empty
 
-        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
-        file_list = os.listdir(cache_dir)
+        file_list = os.listdir(self.cache_dir)
         filtered_files = []
         for file_name in file_list:
             title = os.path.splitext(file_name)[0].replace("_", " ").lower()

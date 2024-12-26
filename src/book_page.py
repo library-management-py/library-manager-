@@ -2,11 +2,13 @@ import customtkinter as ctk
 import os
 from PIL import Image
 import db_users
+import sys
 
 class bookpage(ctk.CTkFrame):
-    def __init__(self, parent, controller):
+    def __init__(self, parent, controller,cache_dir =None):
         super().__init__(parent)
         self.controller = controller
+        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(os.path.dirname(__file__)), "cached_images")
         self.configure(fg_color="beige")
         # Configure layout
         self.grid_columnconfigure(0, weight=3)  # Left frame (Image)
@@ -61,7 +63,7 @@ class bookpage(ctk.CTkFrame):
         self.clean_frames()
         
         titles = self.controller.title_transfer.copy()
-        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+
         
         self.update_profile_page()
 
@@ -121,8 +123,8 @@ class bookpage(ctk.CTkFrame):
 
         # Display image
         if titles:
-            for file_name in os.listdir(cache_dir):
-                file_path = os.path.join(cache_dir, file_name)
+            for file_name in os.listdir(self.cache_dir):
+                file_path = os.path.join(self.cache_dir, file_name)
                 title = os.path.splitext(file_name)[0].replace("_", " ")
                 if os.path.isfile(file_path) and file_name.endswith((".jpg", ".png", ".jpeg")):
                     if title in titles:

@@ -3,7 +3,7 @@ import requests
 import sqlite3
 
 # Database connection
-db_path = r"C:\Users\btats the kid\Desktop\code\library management\database.db"
+db_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "database.db")
 connection = sqlite3.connect(db_path)
 cursor = connection.cursor()
 
