@@ -5,10 +5,17 @@ import db_users
 import sys
 
 class bookpage(ctk.CTkFrame):
-    def __init__(self, parent, controller,cache_dir =None):
+    def __init__(self, parent, controller, cache_dir=None,base_dir=None):
         super().__init__(parent)
         self.controller = controller
-        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(os.path.dirname(__file__)), "cached_images")
+
+        base_dir = base_dir if base_dir else os.path.dirname(os.path.abspath(__file__))
+
+        # Set the cache directory
+        self.cache_dir = cache_dir if cache_dir else os.path.join(base_dir, "cached_images")
+        if not os.path.exists(self.cache_dir):
+            raise FileNotFoundError(f"Cache directory not found: {self.cache_dir}")
+
         self.configure(fg_color="beige")
         # Configure layout
         self.grid_columnconfigure(0, weight=3)  # Left frame (Image)

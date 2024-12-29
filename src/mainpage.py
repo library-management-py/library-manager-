@@ -8,10 +8,17 @@ from tkinter import ttk
 import sys
 
 class mainpage(ctk.CTkFrame):
-    def __init__(self, parent, controller,cache_dir=None):
+    def __init__(self, parent, controller, cache_dir=None,base_dir=None):
         super().__init__(parent)
         self.controller = controller
-        self.cache_dir = cache_dir if cache_dir else os.path.join(os.path.dirname(os.path.dirname(__file__)), "cached_images")
+
+        base_dir = base_dir if base_dir else os.path.dirname(os.path.abspath(__file__))
+
+        # Set the cache directory
+        self.cache_dir = cache_dir if cache_dir else os.path.join(base_dir, "cached_images")
+
+
+
         # Main layout
         parent_frame = ctk.CTkFrame(self, fg_color="#FCF1D8") 
         parent_frame.grid(row=0, column=0, sticky="nsew")
@@ -215,10 +222,7 @@ class mainpage(ctk.CTkFrame):
         self.controller.show_frame("bookpage")
 
     def on_mouse_scroll(self, event):
-        if event.delta > 0:  # for scroll up
-            self.canvas.yview_scroll(-1, "units")
-        elif event.delta < 0:  # for scroll down
-            self.canvas.yview_scroll(1, "units")   
+       self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
  
     def sort(self):
         cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"

@@ -10,8 +10,7 @@ import db_users as db_users
 import profile_page
 
 
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("dark-blue")
+
 
 class App(ctk.CTk):
     def __init__(self):
@@ -49,20 +48,20 @@ class App(ctk.CTk):
 class Login(ctk.CTkFrame):
     def __init__(self,parent,controller):
         super().__init__(parent)
-
+        self.configure(fg_color="#FCF1D8") 
         self.controller = controller
 
-        self.username_field = ctk.CTkEntry(self, width=200, font=("Arial", 10))
-        self.password_field = ctk.CTkEntry(self, width=200, font=("Arial", 10), show = "*")
+        self.username_field = ctk.CTkEntry(self, width=200, font=("Arial", 10),fg_color="transparent")
+        self.password_field = ctk.CTkEntry(self, width=200, font=("Arial", 10), show = "*",fg_color="transparent")
 
-        self.label = ctk.CTkLabel(self, text= "Welcome, please log in", font=("Arial",30 ))
-        self.username_label = ctk.CTkLabel(self, text= "username: ", font=("Arial", 17))
-        self.password_label = ctk.CTkLabel(self, text= "password: ", font=("Arial", 17))   
+        self.label = ctk.CTkLabel(self, text= "log in", font=("Arial",30 ),text_color="black")
+        self.username_label = ctk.CTkLabel(self, text= "username: ", font=("Arial", 17),text_color="black")
+        self.password_label = ctk.CTkLabel(self, text= "password: ", font=("Arial", 17),text_color="black")   
 
-        self.enter_button = ctk.CTkButton(self, text="enter", command= self.on_enter)
-        self.admin_page_log_in = ctk.CTkButton(self, text="admin page",fg_color="transparent", command= lambda: controller.show_frame("adminpage"))
-        self.close_button = ctk.CTkButton(self, text="close", command=self.on_close)
-        self.signup_button = ctk.CTkButton(self,text="sign up", command= lambda: controller.show_frame("signup"))
+        self.enter_button = ctk.CTkButton(self, text="enter", command= self.on_enter,fg_color="black", text_color="white")
+        self.admin_page_log_in = ctk.CTkButton(self, text="admin page", command= lambda: controller.show_frame("adminpage"),text_color="white",fg_color="black")
+        self.close_button = ctk.CTkButton(self, text="close", command=self.on_close,fg_color="black", text_color="white")
+        self.signup_button = ctk.CTkButton(self,text="sign up", command= lambda: controller.show_frame("signup"),fg_color="black", text_color="white")
         
 
         self.label.pack(pady=20)
