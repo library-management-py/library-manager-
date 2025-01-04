@@ -225,7 +225,7 @@ class mainpage(ctk.CTkFrame):
        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
  
     def sort(self):
-        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\cached_images"
+        cache_dir = r"C:\Users\btats the kid\Desktop\code\library management\src\cached_images"
 
         file_list = os.listdir(cache_dir)
         file = sorted(file_list)
@@ -282,31 +282,36 @@ class mainpage(ctk.CTkFrame):
         self.image_frame.update_idletasks()  # Ensure all geometry updates are processed
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-    def sort_by_date(self,state):
+    def sort_by_date(self, state):
+        # Fetch books and their published dates from the database
         db_users.cursor.execute("SELECT published_date, title FROM books")
         dates_title = db_users.cursor.fetchall()
 
+        # Ensure all dates are strings and sort based on the state
         if state == "oldest to newest":
-          sorted_dates = sorted(dates_title, key=lambda x: x[0])  # Oldest to Newest
-
-            
-
+            sorted_dates = sorted(dates_title, key=lambda x: x[0])  # Ascending order
         elif state == "newest to oldest":
-            sorted_dates = sorted(dates_title, key=lambda x: x[0], reverse=True)
-        unique_dates = list(dict.fromkeys(sorted_dates))
+            sorted_dates = sorted(dates_title, key=lambda x: x[0], reverse=True)  # Descending order
+        else:
+            print("Invalid state provided for sorting")
+            return
 
+        # Generate file list from sorted titles
         file_list = []
-       
-        for _, title in unique_dates:  
-            # get filename from title
+        for _, title in sorted_dates:
+            # Construct the filename
             filename = f"{title.replace(' ', '_')}.jpg"
             file_path = os.path.join(self.cache_dir, filename)
 
+            # Add the file to the list if it exists
             if os.path.isfile(file_path):
                 file_list.append(filename)
 
 
+
+        # Display the images in sorted order
         self.show_image(file_list=file_list)
+
 
     def option_selected(self, value):
         if value == "Alphabetically":

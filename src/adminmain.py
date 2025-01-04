@@ -9,35 +9,84 @@ import db_users
 class adminmainpage(ctk.CTkFrame):
     def __init__(self,parent,controller):
         super().__init__(parent)
+
+
+        # Save the controller
+               # Save the controller
         self.controller = controller
-        label = ctk.CTkLabel(self, text="Admin main page", font=("Arial", 20))
 
-        label.pack(pady =20)
-        main_page_button = ctk.CTkButton(
-            self, text="back to log in", command=lambda: self.controller.show_frame("Login")
+        # Set background color to beige
+        self.configure(fg_color="#FCF1D8")  # Beige background
+
+        # Title Label
+        title_label = ctk.CTkLabel(
+            self, text="Admin Main Page", font=("Arial", 24, "bold"), text_color="black"
         )
-        main_page_button.pack(pady=20)
+        title_label.pack(pady=20)
 
-    # Book Management Section
-        book_label = ctk.CTkLabel(self, text="Manage Books", font=("Arial", 17))
+        # Back to Login Button
+        back_button = ctk.CTkButton(
+            self,
+            text="Back to Log In",
+            command=lambda: self.controller.show_frame("Login"),
+            fg_color="black",  # Dark button
+            text_color="white",  # White text
+            font=("Arial", 14),
+            corner_radius=8,
+            width=200,
+        )
+        back_button.pack(pady=20)
+
+        # Book Management Section
+        book_label = ctk.CTkLabel(
+            self, text="Manage Books", font=("Arial", 18, "bold"), text_color="black"
+        )
         book_label.pack(pady=20)
 
-        self.book_title_field = ctk.CTkEntry(self, placeholder_text="Book Title")
+        # Add Book Section
+        self.book_title_field = ctk.CTkEntry(
+            self, placeholder_text="Book Title", width=250, fg_color="white", text_color="black", corner_radius=8
+        )
         self.book_title_field.pack(pady=5)
 
-        self.book_author_field = ctk.CTkEntry(self, placeholder_text="Author")
+        self.book_author_field = ctk.CTkEntry(
+            self, placeholder_text="Author", width=250, fg_color="white", text_color="black", corner_radius=8
+        )
         self.book_author_field.pack(pady=5)
 
-        self.book_year_field = ctk.CTkEntry(self, placeholder_text="Year of Publication")
+        self.book_year_field = ctk.CTkEntry(
+            self, placeholder_text="Year of Publication", width=250, fg_color="white", text_color="black", corner_radius=8
+        )
         self.book_year_field.pack(pady=5)
 
-        add_book_button = ctk.CTkButton(self, text="Add Book", command=self.add_book)
+        add_book_button = ctk.CTkButton(
+            self,
+            text="Add Book",
+            command=self.add_book,
+            fg_color="black",  # Dark button
+            text_color="white",  # White text
+            font=("Arial", 14),
+            corner_radius=8,
+            width=200,
+        )
         add_book_button.pack(pady=10)
 
-        self.delete_book_field = ctk.CTkEntry(self, placeholder_text="Book Title to Delete")
+        # Delete Book Section
+        self.delete_book_field = ctk.CTkEntry(
+            self, placeholder_text="Book Title to Delete", width=250, fg_color="white", text_color="black", corner_radius=8
+        )
         self.delete_book_field.pack(pady=5)
 
-        delete_book_button = ctk.CTkButton(self, text="Delete Book", command=self.delete_book)
+        delete_book_button = ctk.CTkButton(
+            self,
+            text="Delete Book",
+            command=self.delete_book,
+            fg_color="black",  # Dark button
+            text_color="white",  # White text
+            font=("Arial", 14),
+            corner_radius=8,
+            width=200,
+        )
         delete_book_button.pack(pady=10)
 
     def add_book(self):

@@ -51,8 +51,8 @@ class Login(ctk.CTkFrame):
         self.configure(fg_color="#FCF1D8") 
         self.controller = controller
 
-        self.username_field = ctk.CTkEntry(self, width=200, font=("Arial", 10),fg_color="transparent")
-        self.password_field = ctk.CTkEntry(self, width=200, font=("Arial", 10), show = "*",fg_color="transparent")
+        self.username_field = ctk.CTkEntry(self, width=200, font=("Arial", 10),fg_color="transparent",text_color="black")
+        self.password_field = ctk.CTkEntry(self, width=200, font=("Arial", 10), show = "*",fg_color="transparent",text_color="black")
 
         self.label = ctk.CTkLabel(self, text= "log in", font=("Arial",30 ),text_color="black")
         self.username_label = ctk.CTkLabel(self, text= "username: ", font=("Arial", 17),text_color="black")
@@ -77,20 +77,28 @@ class Login(ctk.CTkFrame):
 
 
     def on_enter(self):
-        username_value = self.username_field.get()
-        password_value = self.password_field.get()
-         
+       # Get the entered username and password
+       username_value = self.username_field.get().strip()
+       password_value = self.password_field.get()
 
-        rows = db_users.cursor.execute("SELECT username, password FROM users").fetchall()
-        authenticate = False
-        for row in rows:
-            if row[0] == username_value and row[1] == password_value:
-                authenticate = True
-                break
-        if authenticate:
-            self.controller.show_frame("mainpage")
-        else:
-            messagebox.showwarning("failed")
+       # Validate input
+       if not username_value or not password_value:
+           messagebox.showwarning("Input Error", "Please enter both username and password.")
+           return
+
+       # Use parameterized query to fetch the password for the entered username
+       query = "SELECT password FROM users WHERE username = ?"
+       cursor = db_users.cursor
+       cursor.execute(query, (username_value,))
+       row = cursor.fetchone()
+
+       # Check if the username exists and verify the password
+       if row and row[0] == password_value:
+           self.controller.show_frame("mainpage")
+           
+       else:
+       # If authentication fails
+            messagebox.showwarning("Authentication Failed", "Invalid username or password.")
 
 
     def on_close(self):

@@ -43,19 +43,28 @@ class adminpage(ctk.CTkFrame):
 
 
     def on_enter(self):
-        entered_username = self.admin_username_field.get()
-        entered_password = self.admin_password_field.get()
-
-        # Query the database for matching credentials
-        db_users.cursor.execute("SELECT username, password FROM admins WHERE username = ?", (entered_username,))
-        result = db_users.cursor.fetchone()
-
-        if result:
-            db_username, db_password = result
-            if entered_password == db_password:
-                messagebox.showinfo("Success", "Login Successful!")
-                self.controller.show_frame("adminmainpage")
+        entered_username = self.admin_username_field.get().strip()
+        entered_password = self.admin_password_field.get().strip()
+    
+        # Validate input fields
+        if not entered_username or not entered_password:
+            messagebox.showerror("Error", "Both username and password fields are required!")
+            return
+    
+        try:
+            # Query the database for matching credentials
+            db_users.cursor.execute("SELECT username, password FROM admins WHERE username = ?", (entered_username,))
+            result = db_users.cursor.fetchone()
+    
+            if result:
+                db_username, db_password = result
+                if entered_password == db_password:
+                    messagebox.showinfo("Success", "Login Successful!")
+                    self.controller.show_frame("adminmainpage")
+                else:
+                    messagebox.showerror("Error", "Invalid Password!")
             else:
-                messagebox.showerror("Error", "Invalid Password!")
-        else:
-            messagebox.showerror("Error", "Username not found!")
+                messagebox.showerror("Error", "Username not found!")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
+    
