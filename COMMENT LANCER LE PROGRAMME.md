@@ -4,6 +4,8 @@
 
 src/dist/main/main.exe
 
+main.exe et pas juste main car il ya deux main, choisit main.exe!
+
 Il suffit de naviguer vers ce chemin et de double-cliquer sur main.exe pour lancer le programme.
 
 
