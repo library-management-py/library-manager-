@@ -41,6 +41,8 @@ class adminpage(ctk.CTkFrame):
         enter_button.pack(pady=20)
         back_button.pack(pady=10)
 
+        self.bind("<Return>", lambda event: self.on_enter())
+
 
     def on_enter(self):
         entered_username = self.admin_username_field.get().strip()

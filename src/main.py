@@ -74,7 +74,7 @@ class Login(ctk.CTkFrame):
         self.admin_page_log_in.pack(pady =20)
         self.signup_button.pack(pady=20)
 
-
+        self.bind("<Return>", lambda event: self.on_enter())
 
     def on_enter(self):
        # Get the entered username and password
@@ -94,11 +94,15 @@ class Login(ctk.CTkFrame):
 
        # Check if the username exists and verify the password
        if row and row[0] == password_value:
-           self.controller.show_frame("mainpage")
+            self.username_field.delete(0, "end")
+            self.password_field.delete(0, "end")
+            self.controller.show_frame("mainpage")
            
        else:
        # If authentication fails
             messagebox.showwarning("Authentication Failed", "Invalid username or password.")
+            self.username_field.delete(0, "end")
+            self.password_field.delete(0, "end")
 
 
     def on_close(self):

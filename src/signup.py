@@ -48,7 +48,9 @@ class signup(ctk.CTkFrame):
             self, text="Back to Login", command=lambda: controller.show_frame("Login"), fg_color="black", text_color="white", width=150
         )
         back_button.pack(pady=10)
+
     def on_enter(self):
+        print("Enter key pressed")
         # Get values from the input fields
         username_value = self.username_field.get().strip()
         email_value = self.email_field.get().strip()

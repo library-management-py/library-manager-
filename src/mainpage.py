@@ -117,20 +117,22 @@ class mainpage(ctk.CTkFrame):
         self.basic_search_entry.bind("<Return>", lambda event: self.search_function())
 
         # Advanced Search Fields
-        self.author_label = ctk.CTkLabel(header_frame, text="Author:", text_color="black")
-        self.author_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter author's name",fg_color="transparent")
 
-        self.title_label_adv = ctk.CTkLabel(header_frame, text="Title:", text_color="black")
-        self.title_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book title",fg_color="transparent")
 
         self.genre_label = ctk.CTkLabel(header_frame, text="Genre:", text_color="black")
         self.genre_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book genre",fg_color="transparent")
 
+        self.author_label = ctk.CTkLabel(header_frame, text="Author:", text_color="black")
+        self.author_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter author's name",fg_color="transparent",text_color="black")
+
+        self.title_label_adv = ctk.CTkLabel(header_frame, text="Title:", text_color="black")
+        self.title_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter book title",fg_color="transparent",text_color="black")
+
         self.year_label = ctk.CTkLabel(header_frame, text="Year:", text_color="black")
-        self.year_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter year of publication",fg_color="transparent")
+        self.year_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter year of publication",fg_color="transparent",text_color="black")
 
         self.isbn_label = ctk.CTkLabel(header_frame, text="ISBN:", text_color="black")
-        self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number",fg_color="transparent")
+        self.isbn_entry = ctk.CTkEntry(header_frame, placeholder_text="Enter ISBN number",fg_color="transparent",text_color="black")
 
         # Buttons with transparent inside and black borders
         self.basic_search_button = ctk.CTkButton(
@@ -272,7 +274,8 @@ class mainpage(ctk.CTkFrame):
                 hover_color="#E8E8E8",
                 font=("Arial", 13),   # Pass the title
                 )
-                title_button.grid(row=row + 1, column=column, padx=10, pady=(0, 20))
+                title_button.grid(row=row + 1, column=column, padx=10, pady=(5, 25))
+
 
                 # Update column and row for the next image
                 column += 1
@@ -315,10 +318,16 @@ class mainpage(ctk.CTkFrame):
 
     def option_selected(self, value):
         if value == "Alphabetically":
+            for widget in self.image_frame.winfo_children():
+                widget.destroy()
             self.sort()
         elif value == "By Date - Oldest to Newest":
+            for widget in self.image_frame.winfo_children():
+                widget.destroy()
             self.sort_by_date("oldest to newest")
         elif value == "By Date - Newest to Oldest":
+            for widget in self.image_frame.winfo_children():
+                widget.destroy()
             self.sort_by_date("newest to oldest")
 
     def search_function(self,event=None):
